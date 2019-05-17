@@ -1,7 +1,7 @@
 {
-    "name": "dario_swain/re-captcha-validator",
+    "name": "ed.sukharev/re-captcha-validator",
     "type": "library",
-    "description": "Google reCaptcha FormType and Validator for Symfony applications.",
+    "description": "Google reCaptcha FormType and Validator for Symfony forms.",
     "keywords": ["reCaptcha", "captcha", "security", "symfony", "form", "validator"],
     "license": "MIT",
     "authors": [
@@ -10,16 +10,21 @@
             "email": "dario_swain@yahoo.com",
             "homepage": "http://github.com/DarioSwain",
             "role": "Developer"
+        },
+        {
+            "name": "Eduard Sukharev",
+            "email": "sukharev.eh@gmail.com",
+            "homepage": "http://github.com/eduard-sukharev",
+            "role": "Developer"
         }
     ],
     "require": {
         "php": ">=5.3.3",
-        "dario_swain/re-captcha-library": "1.0.*"
+        "ext-json": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
         "squizlabs/php_codesniffer": "~2.0",
-        "symfony/framework-bundle": "~2.3|~3.0",
         "symfony/form": "~2.3|~3.0",
         "symfony/validator": "~2.3|~3.0"
     },

@@ -10,54 +10,25 @@
 
 namespace DS\Component\ReCaptchaValidator\Validator;
 
-use DS\Library\ReCaptcha\Http\Driver\DriverInterface;
-use DS\Library\ReCaptcha\ReCaptcha;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
-/**
- * ReCaptcha Validator.
- *
- * @author Ilya Pokamestov <dario_swain@yahoo.com>
- */
 class ReCaptchaValidator extends ConstraintValidator
 {
-    /** @var Request */
-    protected $request;
+    const RECAPTCHA_URL = 'https://www.google.com/recaptcha/api/siteverify';
     /** @var  string */
     protected $privateKey;
-    /** @var  DriverInterface */
-    protected $driver;
     /** @var bool */
     protected $enabled;
 
     /**
-     * @param Request|RequestStack $request
      * @param string $privateKey
-     * @param DriverInterface $driver
      * @param bool $enabled
-     *
-     * @throws \InvalidArgumentException
      */
-    public function __construct($request, $privateKey, DriverInterface $driver = null, $enabled = true)
+    public function __construct($privateKey, $enabled = true)
     {
-        // Typehint the $request argument for RequestStack when dropping support for Symfony 2.3
-        if ($request instanceof Request) {
-            $this->request = $request;
-        } elseif ($request instanceof RequestStack) {
-            $this->request = $request->getCurrentRequest();
-        } else {
-            throw new \InvalidArgumentException(
-                'Argument 1 should be an instance of Symfony\Component\HttpFoundation\Request or '
-                .'Symfony\Component\HttpFoundation\RequestStack'
-            );
-        }
-
         $this->privateKey = $privateKey;
-        $this->driver = $driver;
         $this->enabled = $enabled;
     }
 
@@ -74,18 +45,26 @@ class ReCaptchaValidator extends ConstraintValidator
             return;
         }
 
-        if ($this->request->get('g-recaptcha-response', false)) {
-            $reCaptcha = new ReCaptcha(
-                $this->privateKey,
-                $this->request->getClientIp(),
-                $this->request->get('g-recaptcha-response', false)
-            );
-            $response = $reCaptcha->buildRequest($this->driver)->send();
-            if (!$response->isSuccess()) {
-                $this->context->addViolation($constraint->message);
-            }
-        } else {
+        if (!isset($_REQUEST['g-recaptcha-response'])) {
+            $this->context->addViolation($constraint->message);
+
+            return;
+        }
+
+        $verifyResponse = $this->httpGet(array(
+                'secret' => $this->privateKey,
+                'response' => $_REQUEST['g-recaptcha-response'])
+        );
+        $responseData = json_decode($verifyResponse);
+        if (!$responseData->success) {
             $this->context->addViolation($constraint->message);
         }
+    }
+
+    private function httpGet(array $parameters)
+    {
+        $url = sprintf('%s?%s', self::RECAPTCHA_URL, http_build_query($parameters));
+
+        return file_get_contents($url);
     }
 }
