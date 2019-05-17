@@ -15,7 +15,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Exception\InvalidConfigurationException;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Intl\Locale\Locale;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
@@ -44,7 +43,7 @@ class ReCaptchaType extends AbstractType
         if (null !== $locale) {
             $this->locale = $locale;
         } else {
-            $this->locale = Locale::getDefault();
+            $this->locale = 'en';
         }
     }
 
