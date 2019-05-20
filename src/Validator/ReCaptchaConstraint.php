@@ -23,10 +23,12 @@ class ReCaptchaConstraint extends Constraint
     public $message = 'ds.recaptcha.invalid';
     /** @var bool $enabled */
     public $enabled = true;
+    /** @var string */
+    public $privateKey = '';
 
     /** @return string */
     public function validatedBy()
     {
-        return 'ds_re_captcha.validator';
+        return 'DS\Component\ReCaptchaValidator\Validator\ReCaptchaValidator';
     }
 }

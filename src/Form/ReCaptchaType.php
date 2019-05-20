@@ -12,7 +12,6 @@ namespace DS\Component\ReCaptchaValidator\Form;
 
 use DS\Component\ReCaptchaValidator\Validator\ReCaptchaConstraint;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Exception\InvalidConfigurationException;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,16 +28,17 @@ class ReCaptchaType extends AbstractType
 
     /** @var  string */
     protected $publicKey;
+    /** @var string */
+    private $privateKey;
     /** @var  string */
     protected $locale;
+    private $enabled;
 
-    public function __construct($publicKey, $locale = null)
+    public function __construct($siteKey, $secretKey, $enabled = true, $locale = null)
     {
-        if (null === $publicKey) {
-            throw new InvalidConfigurationException('The parameters "public_key" must be configured.');
-        }
-
-        $this->publicKey = $publicKey;
+        $this->publicKey = $siteKey;
+        $this->privateKey = $secretKey;
+        $this->enabled = $enabled;
 
         if (null !== $locale) {
             $this->locale = $locale;
@@ -75,7 +75,10 @@ class ReCaptchaType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'constraints' => array(new ReCaptchaConstraint())
+            'constraints' => array(new ReCaptchaConstraint(array(
+                'privateKey' => $this->privateKey,
+                'enabled' => $this->enabled)
+            ))
         ));
     }
 
